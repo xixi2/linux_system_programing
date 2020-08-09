@@ -44,7 +44,7 @@ void *producer(void *arg) {
 
 void *customer(void *arg) {
     while (1) {
-//        printf("customer, full: %d\n", full);
+        printf("customer, full: %d\n", full);
 
         sem_wait(&full);                // 如果full==0,线程阻塞，--full
         pthread_mutex_lock(&mutex);

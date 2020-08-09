@@ -18,12 +18,15 @@ typedef struct node {
 } ListNode;
 
 // 永远指向链表头部的指针
+// 头部插入，头部删除
 ListNode *head = NULL;
-
 
 // 线程同步-互斥锁，阻塞线程-条件变量
 pthread_mutex_t mutex;
 pthread_cond_t cond;
+
+const int psleep_time = 5;
+const int csleep_time = 2;
 
 void *producer(void *arg) {
     while (1) {
@@ -36,13 +39,14 @@ void *producer(void *arg) {
         pnew->next = head;
         head = pnew;
         // 实际过程中，应该把打印这一句放到临界区外，这里是为了方便展示
-        printf("====== produce: %lu, %d\n", pthread_self(), head->data);
+        printf("++++++++++++++ produce: %lu, %d\n", pthread_self(), head->data);
+
         pthread_mutex_unlock(&mutex);
 
         // 通知阻塞的消费者线程解除阻塞
         pthread_cond_signal(&cond);
 
-        sleep(rand() % 3);
+        sleep(psleep_time);
     }
     return NULL;
 }
@@ -51,7 +55,10 @@ void *customer(void *arg) {
     while (1) {
         // 开始访问共享数据（无论是读还是写）之前加锁
         pthread_mutex_lock(&mutex);
+
+        // 如果链表为空，那么消费者阻塞
         if (head == NULL) {
+            printf("====== factory is empty and costumer %lu amd gonna sleep=====\n", pthread_self());
             // 判断链表是否为空，方案一：轮询
             // 轮询检查链表是否为空，效率较低
             // continue;
@@ -64,10 +71,12 @@ void *customer(void *arg) {
         // 链表不为空，删除一个头节点，模拟消费过程
         ListNode *pdel = head;
         head = head->next;
+
         // 下面两行是为了展示效果才放入临界区内，实际生产过程中应该保证临界区越小越好
-        printf("****** customer: %lu, %d\n", pthread_self(), pdel->data);
+        printf("--------------- customer: %lu, %d\n", pthread_self(), pdel->data);
         free(pdel);
         pthread_mutex_unlock(&mutex);
+        sleep(csleep_time);
     }
     return NULL;
 }
