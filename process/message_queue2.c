@@ -1,6 +1,6 @@
 //
 // Created by xixi2 on 2020/3/12.
-// 从消息队列中读取消息
+// 从xia消息队列中读取消息
 
 
 #include <sys/types.h>
@@ -20,7 +20,7 @@ struct msgbuf{
 
 int main(){
     int msgid;
-    key_t key;
+    key_t key;      // key_t为__int32_t
     struct msgbuf buf;
     key = ftok(FILEPATH, PROJID);
 

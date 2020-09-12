@@ -16,8 +16,8 @@ int main(){
         perror("pipe error");
         exit(1);
     }
-    printf("pipe[0] = %d\n", fd[0]);
-    printf("pipe[1] = %d\n", fd[1]);
+//    printf("pipe[0] = %d\n", fd[0]);
+//    printf("pipe[1] = %d\n", fd[1]);
 
     pid_t pid = fork();
     if(pid == -1){
@@ -26,6 +26,7 @@ int main(){
     }else if(pid > 0){  // 父进程，执行ps aux
         // 写管道操作
         close(fd[0]);   // 关闭读端
+        printf("father write = %d\n", getpid());
 
         // 将标准输出指向管道的写端
         // 修改文件描述符1指向的文件，原来指向/dev/tty，现在指向管道的写端
@@ -37,6 +38,7 @@ int main(){
         exit(1);
     }else{              // 子进程，执行grep bash
         close(fd[1]);   // 关闭写端
+        printf("child read = %d\n", getpid());
 
         // 让标准输入指向管道的读端
         dup2(fd[0], STDIN_FILENO);
@@ -44,7 +46,7 @@ int main(){
         perror("execlp");
     }
 
-    close(fd[0]);       // 关闭读端
+    close(fd[0]);
     close(fd[1]);       // 关闭写端
     return 0;
 }
