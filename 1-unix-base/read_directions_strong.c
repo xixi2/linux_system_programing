@@ -20,7 +20,7 @@ int main() {
     // 当键入文件结束符，表示到达文件末尾，返回一个空指针
     while (fgets(buf, MAXLINE, stdin) != NULL) {
         if (buf[strlen(buf) - 1] == '\n') {
-            buf[strlen(buf) - 1] = 0;   // 用null代替新行
+            buf[strlen(buf) - 1] = 0;
         }
         if ((pid = fork()) < 0) {
             perror("fork error");
@@ -29,6 +29,8 @@ int main() {
             // execlp执行的命令没有参数，arg部分以NULL结束，(char*)0
             // 加强版：给execlp传递参数，使该程序能支持cat类需要参数的命令
             // 思路：为了传递参数，先要分析输入行，然后用某种约定把参数分开，然后将分隔后的各个参数传递execlp函数
+
+
             execlp(buf, buf, (char *) 0);
             printf("could not execute: %s", buf);
             exit(127);
